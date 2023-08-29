@@ -8,5 +8,5 @@ node_modules/
 coverage
 *-*.tgz
 
-dist
-types
+# dist
+# types
