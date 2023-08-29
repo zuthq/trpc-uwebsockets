@@ -12,19 +12,14 @@ import {
 
 export * from './types';
 
-/**
- * @param uWsApp uWebsockets server instance
- * @param prefix The path to trpc without trailing slash (ex: "/trpc")
- * @param opts handler options
- */
-export function createUWebSocketsHandler<TRouter extends AnyRouter>(
-  uWsApp: TemplatedApp,
-  prefix: string,
-  opts: uHTTPHandlerOptions<TRouter>
-) {
-  const prefixTrimLength = prefix.length + 1; // remove /* from url
+export const handler =
+  <TRouter extends AnyRouter>(
+    prefix: string,
+    opts: uHTTPHandlerOptions<TRouter>
+  ) =>
+  (res: HttpResponse, req: HttpRequest) => {
+    const prefixTrimLength = prefix.length + 1; // remove /* from url
 
-  const handler = (res: HttpResponse, req: HttpRequest) => {
     const method = req.getMethod().toUpperCase() as 'GET' | 'POST';
     const url = req.getUrl().substring(prefixTrimLength);
     const query = req.getQuery();
@@ -51,6 +46,17 @@ export function createUWebSocketsHandler<TRouter extends AnyRouter>(
       ...opts,
     });
   };
-  uWsApp.get(prefix + '/*', handler);
-  uWsApp.post(prefix + '/*', handler);
+
+/**
+ * @param uWsApp uWebsockets server instance
+ * @param prefix The path to trpc without trailing slash (ex: "/trpc")
+ * @param opts handler options
+ */
+export function createUWebSocketsHandler<TRouter extends AnyRouter>(
+  uWsApp: TemplatedApp,
+  prefix: string,
+  opts: uHTTPHandlerOptions<TRouter>
+) {
+  uWsApp.get(prefix + '/*', handler(prefix, opts));
+  uWsApp.post(prefix + '/*', handler(prefix, opts));
 }
